@@ -1,4 +1,4 @@
-/* Copyright 2021 Jay Greco
+/* Copyright 2021 Seth Bonner <fl3tching101@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,14 +13,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-// clang-format off
+
 #pragma once
 
-/* space savers */
-#define DYNAMIC_KEYMAP_LAYER_COUNT 3
+#include <stdint.h>
 
-#define NUM_ENCODERS 1
+typedef struct
+{
+    char key_string[4];
+    uint16_t keycode;
+} lookup_table_t;
 
-// Reduces size
-#define NO_ACTION_ONESHOT
-#define NO_ACTION_TAPPING
+char* translate_keycode_to_string(uint16_t code);
+
+extern lookup_table_t lookup_table[50];
