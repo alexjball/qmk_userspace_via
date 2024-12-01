@@ -14,13 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include QMK_KEYBOARD_H
-#include "keycode_lookup.h"
 
 // clang-format off
 enum layers {
     _BASE,
     _VIA1,
-    _VIA2
+    _VIA2,
+    _VIA3
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -47,61 +47,70 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,          KC_NO,    KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,          KC_NO,
     KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,    KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,          KC_NO,  KC_NO,
     KC_NO,  KC_NO,  KC_NO,  KC_NO,          KC_NO,          KC_NO,    KC_NO,                  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO
+  ),
+  [_VIA3] = LAYOUT_all(
+            KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,    KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,
+    KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,    KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,
+    KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,          KC_NO,    KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,
+    KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,          KC_NO,    KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,          KC_NO,
+    KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,    KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,          KC_NO,  KC_NO,
+    KC_NO,  KC_NO,  KC_NO,  KC_NO,          KC_NO,          KC_NO,    KC_NO,                  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO,  KC_NO
   )
 };
 // clang-format on
 
-char last_keycode_string[32] = { 0 };
-
 #if defined(ENCODER_MAP_ENABLE)
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [_BASE] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU)},
-    [_VIA1] = { ENCODER_CCW_CW(KC_NO, KC_NO)   },
-    [_VIA2] = { ENCODER_CCW_CW(KC_NO, KC_NO)    }
+    [_VIA1] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS)   },
+    [_VIA2] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS)    },
+    [_VIA3] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS)    }
 };
 #endif
 
 // https://docs.qmk.fm/custom_quantum_functions#process-record-function-documentation
 #ifdef OLED_ENABLE
 
+// Word count
+static uint16_t char_count = 0;
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    // Record the mapped keycode if it's pressed
-    if (record->event.pressed) {
-        uint16_t mapped_keycode = get_record_keycode(record, false);
-        char *keycode_str = translate_keycode_to_string(mapped_keycode);
-        memset(last_keycode_string, 0, sizeof(last_keycode_string));
-        strcpy(last_keycode_string, keycode_str);
-    }
-    return true;
+  if (record->event.pressed) {
+    // Increment char count
+    char_count++;
+  }
+  return true;
 }
 
 bool oled_task_user(void) {
     // Host Keyboard Layer Status
+    oled_write_ln_P(PSTR("Hi Alex!"), false);
+
     oled_write_P(PSTR("Layer: "), false);
 
     switch (get_highest_layer(layer_state)) {
         case _BASE:
-            oled_write_P(PSTR("Default\n"), false);
+            oled_write_P(PSTR("Base\n"), false);
             break;
         case _VIA1:
-            oled_write_P(PSTR("Fn 1\n"), false);
+            oled_write_P(PSTR("Fn\n"), false);
             break;
         case _VIA2:
-            oled_write_P(PSTR("Fn 2\n"), false);
+            oled_write_P(PSTR("2ase2\n"), false);
+            break;
+        case _VIA3:
+            oled_write_P(PSTR("Sym\n"), false);
             break;
         default:
             // Or use the write_ln shortcut over adding '\n' to the end of your string
             oled_write_ln_P(PSTR("Undefined"), false);
     }
 
-#ifdef WPM_ENABLE
     oled_write_P(PSTR("WPM: "), false);
     oled_write_ln(get_u8_str(get_current_wpm(), ' '), false);
-#endif
 
-    oled_write_P(PSTR("Key: "), false);
-
-    oled_write_ln(last_keycode_string, false);
+    oled_write_P(PSTR("Char Count: "), false);
+    oled_write(get_u16_str(char_count, ' '), false);
 
     return false;
 }

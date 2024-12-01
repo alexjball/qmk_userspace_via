@@ -2,12 +2,16 @@ VIA_ENABLE = yes
 ENCODER_MAP_ENABLE = yes
 MOUSEKEY_ENABLE = yes
 OLED_ENABLE = yes
+WPM_ENABLE = yes
 
-# https://nullbits.co/snap/
-# Uses SSD1306 OLED display https://www.amazon.com/dp/B08KLMJDGH
-# https://docs.qmk.fm/features/oled_driver
-OLED_DRIVER = ssd1306
+REPEAT_KEY_ENABLE = no
+LAYER_LOCK_ENABLE = no
 
-WPM_ENABLE = no
-
-SRC += keycode_lookup.c
+# Uncomment this to reduce size further
+CONSOLE_ENABLE = no
+COMMAND_ENABLE = no
+SPACE_CADET_ENABLE = no
+GRAVE_ESC_ENABLE = no
+MAGIC_ENABLE = no
+AVR_USE_MINIMAL_PRINTF = yes
+MUSIC_ENABLE = no
